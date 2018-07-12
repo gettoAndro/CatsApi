@@ -25,6 +25,17 @@ public class ArtOsController {
     private String uploadPath;
 
 
+    private String addImage(MultipartFile file) throws IOException {
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists())
+            uploadDir.mkdir();
+
+        String uuidFile = UUID.randomUUID().toString();
+        String resultFilename = uuidFile + "." + file.getOriginalFilename();
+        file.transferTo(new File(uploadPath + "/" + resultFilename));
+        return resultFilename;
+    }
+
     @GetMapping(path = "/get_cats")
     public @ResponseBody Iterable<Cat> getCats() {
         return catRepository.findAll();
@@ -35,14 +46,7 @@ public class ArtOsController {
         Cat cat = new Cat();
         cat.setName(name);
         if (file != null) {
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists())
-                uploadDir.mkdir();
-
-            String uuidFile = UUID.randomUUID().toString();
-            String resultFilename = uuidFile + "." + file.getOriginalFilename();
-            file.transferTo(new File(uploadPath + "/" + resultFilename));
-            cat.setImagename(resultFilename);
+            cat.setImagename(addImage(file));
         }
 
         catRepository.save(cat);
@@ -63,11 +67,14 @@ public class ArtOsController {
 
     @GetMapping(path = "/update")
     public @ResponseBody String updateCat(@RequestHeader Long id, @RequestPart(required = false) String name,
-                                          @RequestPart(required = false) String imagename){
+                                          @RequestPart(required = false) MultipartFile file) throws IOException {
         Optional<Cat> cat = catRepository.findById(id);
         Cat cat1 = cat.get();
         cat1.setName(name);
-        cat1.setImagename(imagename);
+        if (file != null){
+            cat1.setImagename(addImage(file));
+        }
+
         catRepository.save(cat1);
         return "Update success";
     }
