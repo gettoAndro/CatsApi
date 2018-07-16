@@ -16,8 +16,8 @@ import java.util.UUID;
 @Controller
 @RequestMapping(path = "cats")
 public class ArtOsController {
-    @Autowired
 
+    @Autowired
     private CatRepository catRepository;
 
 
@@ -41,14 +41,22 @@ public class ArtOsController {
         return catRepository.findAll();
     }
 
+//    @RequestMapping(path = "/add", method = RequestMethod.POST)
+//    public @ResponseBody String addCat(@RequestParam String name, @RequestPart(required = false) MultipartFile file) throws IOException {
+//        Cat cat = new Cat();
+//        cat.setName(name);
+//        if (file != null) {
+//            cat.setImagename(addImage(file));
+//        }
+//        catRepository.save(cat);
+//        return "saved";
+//    }
+
+
     @GetMapping(path = "/add")
-    public @ResponseBody String addCat(@RequestParam String name, @RequestPart(required = false) MultipartFile file) throws IOException {
+    public @ResponseBody String addCat(@RequestParam String name) {
         Cat cat = new Cat();
         cat.setName(name);
-        if (file != null) {
-            cat.setImagename(addImage(file));
-        }
-
         catRepository.save(cat);
         return "saved";
     }
@@ -66,15 +74,10 @@ public class ArtOsController {
     }
 
     @GetMapping(path = "/update")
-    public @ResponseBody String updateCat(@RequestHeader Long id, @RequestPart(required = false) String name,
-                                          @RequestPart(required = false) MultipartFile file) throws IOException {
+    public @ResponseBody String updateCat(@RequestHeader Long id, @RequestParam String name){
         Optional<Cat> cat = catRepository.findById(id);
         Cat cat1 = cat.get();
         cat1.setName(name);
-        if (file != null){
-            cat1.setImagename(addImage(file));
-        }
-
         catRepository.save(cat1);
         return "Update success";
     }
